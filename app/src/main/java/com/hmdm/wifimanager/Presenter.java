@@ -48,6 +48,7 @@ import android.net.wifi.WifiNetworkSuggestion;
 import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -60,6 +61,8 @@ import com.hmdm.wifimanager.model.WiFiItem;
 import com.hmdm.wifimanager.ui.fragments.IMainView;
 import com.hmdm.wifimanager.ui.fragments.IParamsView;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -641,6 +644,22 @@ public class Presenter {
     }
 
     private void setupSecurity(String capabilities, WifiConfiguration config, String preSharedKey) {
+        if (Build.VERSION.SDK_INT >= 33 &&  lastConfig != null) {
+            // Use reflection because we're targeting an old SDK version
+            try {
+                Method method = WifiConfiguration.class.getMethod(
+                        "setMacRandomizationSetting",
+                        int.class
+                );
+
+                int value = lastConfig.enableMac ? 0 : 3;
+                method.invoke(config, value);
+            } catch (NoSuchMethodException |
+                     IllegalAccessException |
+                     InvocationTargetException e) {
+                Log.e(TAG, "Failed to set MAC randomization", e);
+            }
+        }
         if (!TextUtils.isEmpty(capabilities) && config != null) {
             boolean isWPA = capabilities.contains("WPA") || capabilities.contains("WPA2") || capabilities.contains("WPA3");
             if (isWPA) {

@@ -37,6 +37,10 @@ public class MDMConfig {
      */
     public boolean freeAllowed;
     /**
+     * Disable MAC ramdomization (Android 13+)
+     */
+    public boolean enableMac;
+    /**
      * List of allowed networks.
      */
     public ArrayList<AllowedItem> allowed;
@@ -44,6 +48,7 @@ public class MDMConfig {
     public MDMConfig() {
         allAllowed = true;
         freeAllowed = true;
+        enableMac = true;
         allowed = new ArrayList<>();
     }
 }
